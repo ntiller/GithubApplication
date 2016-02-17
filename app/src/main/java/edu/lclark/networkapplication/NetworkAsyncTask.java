@@ -22,6 +22,11 @@ public class NetworkAsyncTask extends AsyncTask<String, Integer, JSONArray> {
     public static final String TAG = NetworkAsyncTask.class.getSimpleName();
 
 
+    @Override
+    protected void onPreExecute() {
+        super.onPreExecute();
+        Log.d(TAG, "Started AsyncTask");
+    }
 
     @Override
     protected JSONArray doInBackground(String... params) {
@@ -43,17 +48,33 @@ public class NetworkAsyncTask extends AsyncTask<String, Integer, JSONArray> {
             BufferedReader reader = new BufferedReader(inputStream);
             String line;
 
+            if (isCancelled()) {
+                return null;
+            }
             while ((line = reader.readLine()) != null) {
                 responseBuilder.append(line);
+
+                if (isCancelled()) {
+                    return null;
+                }
             }
 
             jsonArray = new JSONArray(responseBuilder.toString());
 
+            if (isCancelled()) {
+                return null;
+            }
         } catch (IOException | JSONException e) {
             Log.e(TAG, e.getLocalizedMessage());
         }
 
         return jsonArray;
+    }
+
+    @Override
+    protected void onCancelled(JSONArray jsonArray) {
+        super.onCancelled(jsonArray);
+        Log.d(TAG, "AsyncTask cancelled");
     }
 
     @Override

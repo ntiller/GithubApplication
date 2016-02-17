@@ -64,4 +64,13 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (mAsyncTask != null && !mAsyncTask.isCancelled()) {
+            mAsyncTask.cancel(true);
+        }
+    }
 }
