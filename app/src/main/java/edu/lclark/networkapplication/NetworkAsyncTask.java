@@ -1,6 +1,7 @@
 package edu.lclark.networkapplication;
 
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -20,7 +21,15 @@ public class NetworkAsyncTask extends AsyncTask<String, Integer, JSONArray> {
 
 
     public static final String TAG = NetworkAsyncTask.class.getSimpleName();
+    private final GithubListener mListener;
 
+    public interface GithubListener {
+        void onGithubAccountRetrieved(@Nullable JSONArray githubAccount);
+    }
+
+    public NetworkAsyncTask(GithubListener listener) {
+        mListener = listener;
+    }
 
     @Override
     protected void onPreExecute() {
@@ -82,6 +91,10 @@ public class NetworkAsyncTask extends AsyncTask<String, Integer, JSONArray> {
         super.onPostExecute(jsonArray);
         if (jsonArray == null) {
             Log.e(TAG, "Resulting JSON is null");
+
+            if (mListener != null) {
+                mListener.onGithubAccountRetrieved(null);
+            }
         } else {
             for (int i = 0; i < jsonArray.length(); i++) {
                 try {
@@ -94,6 +107,10 @@ public class NetworkAsyncTask extends AsyncTask<String, Integer, JSONArray> {
                 }
             }
             Log.d(TAG, jsonArray.toString());
+
+            if (mListener != null) {
+                mListener.onGithubAccountRetrieved(jsonArray);
+            }
         }
     }
 }
